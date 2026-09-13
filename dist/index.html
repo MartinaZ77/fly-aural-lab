@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071019">
+<meta name="description" content="音乐与歌声驱动的果蝇神经空间。MaleCNS 真实结构，模拟神经活动。"><title>果蝇音乐空间 · Fly Aural Lab</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23071019'/%3E%3Cellipse cx='32' cy='34' rx='10' ry='17' fill='%23f6a63b'/%3E%3Cellipse cx='20' cy='25' rx='13' ry='7' fill='none' stroke='%237ee7e1' stroke-width='3' transform='rotate(-28 20 25)'/%3E%3Cellipse cx='44' cy='25' rx='13' ry='7' fill='none' stroke='%237ee7e1' stroke-width='3' transform='rotate(28 44 25)'/%3E%3Ccircle cx='28' cy='19' r='4' fill='%23ff654e'/%3E%3Ccircle cx='36' cy='19' r='4' fill='%23ff654e'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<a class="skip-link" href="#sourceHeading">连接声音</a>
+<div class="shell">
+<header class="app-header"><h1>果蝇音乐空间</h1><div class="header-meta"><span>真实结构 · 模拟活动</span><button class="quiet-button" id="methodButton">关于</button></div></header>
+<main>
+<div class="workspace">
+<section class="panel anatomy-panel" aria-labelledby="brainHeading">
+<div class="panel-head"><h2 id="brainHeading">真实 3D 听觉回路</h2><button class="quiet-button fullscreen-button" data-fullscreen=".anatomy-panel" aria-label="全屏查看听觉回路">全屏 ↗</button></div>
+<div class="brain-stage"><canvas id="brainCanvas" tabindex="0" aria-label="真实神经元骨架，全回路随声音模拟活动。拖动旋转，滚轮缩放；方向键旋转，加减键缩放，0 复位。"></canvas><div id="dataError" class="error-overlay" role="alert" hidden></div></div>
+<div class="panel-footer"><span>全回路 · 随声音变化</span><span>模拟活动</span></div>
+</section>
+<section class="panel fly-panel" aria-labelledby="flyHeading">
+<div class="panel-head"><h2 id="flyHeading">果蝇神经空间</h2><div class="panel-actions"><button id="flyStop" class="fullscreen-stop" disabled>停止</button><button class="quiet-button fullscreen-button" data-fullscreen=".fly-panel" aria-label="全屏查看果蝇">全屏 ↗</button></div></div>
+<div class="fly-stage"><canvas id="flyBackground" hidden aria-hidden="true"></canvas><canvas id="flyCanvas" tabindex="0" aria-label="果蝇在放大的神经骨架间飞行。拖动旋转，滚轮缩放；方向键旋转，加减键缩放，0 复位。身体与神经非真实比例。"></canvas><span id="flyStatus" class="loading-note" role="status">正在载入三维空间…</span><div id="flyError" class="error-overlay" role="alert" hidden></div></div>
+<div class="panel-footer"><span id="motionLabel">等待声音</span><span class="sync-label">Aᵢ 同步</span></div>
+</section>
+</div>
+<section class="source-panel" id="dropZone" aria-labelledby="sourceHeading">
+<h2 id="sourceHeading" class="sr-only" tabindex="-1">声音输入</h2>
+<div class="input-row">
+<button class="primary-button" id="pickMusic">＋ 音乐文件</button><input id="fileInput" class="sr-only" tabindex="-1" type="file" accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac" aria-label="选择音乐文件">
+<form id="urlForm"><label for="urlInput">网页地址</label><input id="urlInput" type="text" inputmode="url" placeholder="粘贴音乐或视频链接" required><button type="submit">打开</button></form>
+<div class="sound-actions"><button id="captureButton">网页声音</button><button id="micButton" aria-pressed="false">麦克风</button><button id="stopButton" disabled>停止</button></div>
+</div>
+<div class="source-feedback"><p id="sourceStatus" role="status">拖入音乐、粘贴网址，或打开麦克风。</p><span id="micIndicator" hidden>麦克风已开启</span><meter id="inputMeter" min="0" max="1" value="0" aria-label="实时声音输入"></meter></div>
+<div class="player-box" id="playerBox" hidden><span id="currentTitle"></span><audio id="audioPlayer" controls hidden></audio><a id="externalLink" target="_blank" rel="noopener noreferrer" hidden>打开原网页 ↗</a><output id="playerStatus" role="status"></output><details id="embedBox" hidden><summary>页内播放</summary><iframe id="youtubeFrame" title="网页音乐播放器" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen hidden></iframe></details></div>
+</section>
+</main>
+<footer><span>MaleCNS · 40 个神经元</span><span id="liveStatus" role="status">等待声音</span></footer>
+</div>
+<dialog id="methodDialog" aria-labelledby="methodHeading">
+<div class="dialog-head"><h2 id="methodHeading">关于这个空间</h2><button id="closeMethod">关闭</button></div>
+<p>骨架来自 MaleCNS；亮度与飞行动作是模型可视化，不是实测脑活动或行为预测。</p>
+<p>两幅图共用同一份 Aᵢ(t)。颜色识别神经元，明暗表示模拟活动；透视与遮挡会影响外观。</p>
+<p>声音仅在本机分析。动作自动组合，路线随机探索；神经线落脚是几何约束，不是物理仿真。</p>
+<div class="source-links"><a href="./assets/auditory-connectome.json" target="_blank" rel="noopener">MaleCNS 数据 ↗</a><a href="./assets/FLYGYM-NOTICE.md" target="_blank" rel="noopener">身体模型与许可 ↗</a><a href="https://github.com/kylemath/Brainimation" target="_blank" rel="noopener">BrainImation ↗</a></div>
+</dialog>
+<div id="fileNotice" hidden><h2>请从网页入口打开</h2><p>直接打开文件会限制三维空间和声音连接。</p><a href="http://127.0.0.1:4173/">本地预览 ↗</a></div>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+<script>if(location.protocol==='file:'){document.getElementById('fileNotice').hidden=false;}else{import('./app.mjs').catch(()=>{document.getElementById('sourceStatus').textContent='页面未完全载入，请刷新重试。';});}</script>
+</body>
+</html>
