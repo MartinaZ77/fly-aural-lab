@@ -1,95 +1,266 @@
-# Fly Aural Lab · 果蝇音乐空间
+# Fly Aural Lab
 
-把一首歌、一段网页声音，或者你对着麦克风唱的旋律，丢进一个放大的果蝇神经森林里。页面会把声音拆成节奏、频率、能量和变化速度，再让这些信号进入一个基于 MaleCNS 数据整理出的听觉神经子网。于是你会看到：彩色神经枝条一闪一闪，发光节点沿着骨架亮起，一只 3D 果蝇在神经空隙里飞、落、走、搓手、振翅，像在自己的“神经宇宙”里听歌。
+An interactive music and neural visualization experiment inspired by the auditory neural circuitry and behavior of the fruit fly.
 
-这个项目的目标不是证明果蝇真的喜欢哪首歌，而是做一个既好看、又尽量尊重神经结构的互动音乐可视化。希望大家可以拖一首古典乐、电子乐、摇滚、环境音，甚至自己唱几句，看看这只小虫会被声音带去哪里。玩得开心。
+[Open the live website](https://martinaz77.github.io/fly-aural-lab/)
 
-## 你会看到什么
+Drop a song, a web soundtrack, or your own voice into an enlarged fruit-fly neural forest. Fly Aural Lab analyzes rhythm, frequency, energy, and acoustic change locally in the browser, then maps those signals onto an auditory neural subnetwork organized from MaleCNS data.
 
-- 左侧是真实 3D 听觉回路模块：展示从 MaleCNS 中选出的 40 个果蝇神经元骨架，包含 JO 输入相关神经元、下游路径和少量下降神经元。
-- 右侧是放大的神经飞行空间：同一批神经元被放大成“树枝一样的舞台”，果蝇只在神经线附近穿行、落脚和移动。
-- 彩色发光节点不是随机装饰：每个神经元有固定颜色，节点亮度来自当前声音驱动出的模拟活动值 Aᵢ，所以安静时会暗下去，声音变化明显时会更亮。
-- 果蝇动作会自动组合：它可以飞行、减速、落在神经线上、沿线走动、后退、整理前足、搓脸、摇头、摆腹部和振翅，不需要手动选动作。
+You will see colorful neural branches glow with the sound, while a 3D fruit fly moves through the neural space: flying, landing, walking, grooming its front legs, and flapping its wings.
 
-## 为什么会亮
-
-声音进入页面后，会在浏览器本地做实时分析。模型主要看几类特征：
-
-- 低频、中频、高频的能量比例；
-- 声音整体强弱；
-- 节奏和调制强度；
-- 突然变响、变密、变尖锐的变化；
-- 静音或接近静音时的自然衰减。
-
-这些特征先被映射到果蝇听觉入口附近的神经元。科学依据是：果蝇主要通过触角和 Johnston's organ 接收振动与声音信息，MaleCNS 数据里可以看到 JO 相关神经元及其下游连接。页面不会让“鼓点直接控制画面”，而是走一条固定流程：
+Fly Aural Lab explores this mapping:
 
 ```text
-音乐 / 麦克风 / 网页声音
-        ↓
-声学特征分析
-        ↓
-JO 相关听觉输入
-        ↓
-MaleCNS 40 个神经元连接图
-        ↓
-模拟神经活动 Aᵢ
-        ↓
-神经发光、飞行倾向、落脚和肢体动作
+Music / Microphone / Web Audio
+            ↓
+     Acoustic analysis
+            ↓
+    JO-related auditory input
+            ↓
+    MaleCNS neural subnetwork
+            ↓
+    Simulated neural activity Aᵢ
+            ↓
+Neural visualization + fly behavior
 ```
 
-也就是说，画面里哪个神经元更亮，取决于声音特征、该神经元在子网中的位置、连接方向、连接权重、衰减时间和当前活动历史。颜色代表“这是哪一个神经元”，亮度代表“这个神经元在当前模型里有多活跃”。
+The project uses publicly available neural structure and behavioral research as the basis for an interactive audiovisual model. It is made for curiosity, beauty, and play: try classical music, electronic music, rock, ambient sound, a website player, or your own voice, and watch how the little fly responds.
 
-## 果蝇会怎么动
+## What you will see
 
-果蝇不是按照固定舞蹈列表循环，也不是一直绕圈。它会读取几个下降神经元的活动趋势，把神经状态转成动作倾向：
+The left side presents a real 3D auditory circuit module based on a selected subset of 40 fruit-fly neurons from MaleCNS. The subset includes:
 
-- 活动上升、变化明显：更容易起飞、穿行、振翅；
-- 活动持续但不爆发：可能在神经枝条之间探索；
-- 活动降低：会寻找神经线作为落脚点；
-- 落在枝条上：脚会按交替三足步态的规律移动，而不是六条腿乱甩；
-- 稳定停驻时：可能做前足 grooming、轻微摇头或摆腹部；
-- 声音停止：活动逐渐衰减，果蝇会完成落脚或停驻，而不是僵在半空。
+- JO-related input neurons;
+- downstream neural pathways;
+- a small number of descending neurons.
 
-这些动作是为了让“听觉神经状态 → 身体行为”这件事更直观。它借鉴了果蝇步态、落脚、清洁动作和神经到运动控制的公开研究，但页面里没有训练真实的 MuJoCo 闭环身体，也没有预测某只真实果蝇下一秒一定会怎么动。
+The right side presents the same neural structures as an expanded neural forest. The fly moves around these structures and can land on neural branches, creating a visible link between changing neural activity and changing behavior.
 
-## 怎么玩
+The glowing nodes are not random decoration. Each neuron has a fixed color representing its identity, while its brightness is determined by the current simulated activity value Aᵢ. Therefore:
 
-不需要 API 密钥、登录服务或构建步骤。用 HTTPS 静态托管整个 `dist/` 目录即可，或者本地启动：
+- quiet audio produces lower activity and dimmer nodes;
+- stronger acoustic changes produce higher activity and brighter nodes;
+- neural activity changes over time rather than simply switching on and off.
+
+## Why the neurons light up
+
+Audio is analyzed locally in the browser. The model extracts several acoustic features:
+
+- low-, mid-, and high-frequency energy;
+- overall audio amplitude;
+- rhythmic and modulation intensity;
+- sudden changes in loudness, density, or spectral characteristics;
+- natural decay during silence or near-silence.
+
+These features are mapped to neurons around the auditory input pathway. The scientific basis is that fruit flies detect vibration and sound through the antennae and Johnston’s organ, and the MaleCNS dataset contains JO-related neurons and their downstream connections.
+
+The resulting activity is influenced by:
+
+- acoustic features;
+- neuron position within the selected subnetwork;
+- connection direction;
+- connection weights;
+- activity decay;
+- previous activity history.
+
+Conceptually:
+
+```text
+Audio
+  ↓
+Acoustic features
+  ↓
+Auditory input mapping
+  ↓
+Weighted neural connections
+  ↓
+Activity propagation
+  ↓
+Activity decay
+  ↓
+Visual and behavioral output
+```
+
+This is why a neuron can become brighter, fade, or remain active for a moment after a sound changes. Color shows neuron identity; brightness shows that neuron’s activity within the model.
+
+## What the fly can do
+
+The fly does not simply loop through a fixed dance animation. Its behavior is driven by simulated neural-state changes, especially activity trends associated with selected descending neurons.
+
+Examples include:
+
+- increasing or rapidly changing activity → higher probability of flight, movement, or wing vibration;
+- sustained activity → exploratory movement through the neural space;
+- decreasing activity → increased tendency to search for a landing point;
+- landing on a neural branch → alternating tripod-style walking;
+- stable resting → possible foreleg grooming, head movement, abdominal movement, or wing vibration;
+- audio stopping → gradual neural activity decay followed by landing or resting behavior.
+
+The behavioral system is designed to make this relationship more intuitive and visually observable:
+
+```text
+auditory input
+→ neural state
+→ behavioral tendency
+```
+
+## How to use it
+
+The project can be experienced directly in a web browser without an API key or user account.
+
+You can interact with the visualization in several ways:
+
+- drag and select a local audio file;
+- enable the microphone and sing or speak into it;
+- paste a supported web audio or video URL;
+- use browser tab-audio sharing for supported web playback;
+- rotate both 3D views;
+- zoom using the mouse wheel or trackpad;
+- double-click to reset the camera.
+
+For web-based audio, playback depends on the policies and technical restrictions of the third-party platform. For example, some YouTube videos allow embedding while others return an embedding restriction. A video may therefore play normally on YouTube but fail to play inside this page.
+
+No API key, login service, or cloud backend is required. The static website can be served directly from the `dist/` directory:
 
 ```sh
 python3 -m http.server 4173 --bind 127.0.0.1 --directory dist
 ```
 
-然后打开 `http://127.0.0.1:4173/`。不要直接双击 HTML 文件，因为麦克风、网页声音和部分浏览器功能在 `file://` 页面里会受限制。
+Then open:
 
-- 拖入音乐文件，或点击按钮选择本地音频。
-- 点击麦克风并授权，就可以对着唱歌。
-- 粘贴网页音乐链接，支持的视频会尝试在页内打开。
-- 如果网页播放器能播但页面没有收到声音，点击“网页声音”，选择正在播放的浏览器标签页，并勾选共享音频。
-- YouTube、Bilibili、Vimeo、SoundCloud 等网页是否能页内播放，取决于它们自己的嵌入规则、登录状态、版权限制和浏览器权限。
-- 两个 3D 窗口都可以拖动旋转、滚轮缩放、双击复位。
+```text
+http://127.0.0.1:4173/
+```
 
-## 用了谁的什么
+Do not open the HTML file directly with `file://`, because microphone access, web audio, and other browser APIs may be restricted in that environment.
 
-- [Janelia Research Campus / FlyEM MaleCNS](https://male-cns.janelia.org/)：提供雄性果蝇中枢神经系统 MaleCNS 的公开资料背景。本项目使用 `male-cns:v1.0` 相关的神经元 Body ID、SWC 骨架、连接权重、ROI/类型信息和官方脑部参考图来搭建神经空间。
-- [neuPrint](https://neuprint.janelia.org/?dataset=male-cns:v1.0&qt=findneurons)：用于查询和理解 MaleCNS 里的神经元、连接和注释；项目里的 40 个神经元子集就是围绕听觉入口和下游路径整理出来的。
-- [Google Neuroglancer](https://github.com/google/neuroglancer)：作为 3D 神经数据浏览方式的参考。它帮助理解神经骨架在空间里应该如何被查看、旋转和放大；本项目没有把 Neuroglancer 代码直接打包进页面。
-- [BrainImation](https://github.com/kylemath/Brainimation)：作为彩色神经动画和“神经在黑色空间里发光”的视觉灵感参考。本项目没有复制 BrainImation 的数据或算法，而是用自己的 MaleCNS 子网和音乐映射生成画面。
-- [NeLy-EPFL / FlyGym / NeuroMechFly](https://github.com/NeLy-EPFL/flygym)：提供 3D 果蝇身体网格和关节层级参考，保留在 `dist/assets/FLYGYM-NOTICE.md` 和 `dist/assets/FLYGYM-LICENSE.txt`。页面里的小虫身体来自这个科学形态资产的网页化转换。
-- [three.js](https://threejs.org/) 和 OrbitControls：用于网页里的 3D 渲染、相机旋转、缩放和光效，许可保留在 `dist/vendor/`。
-- [YouTube IFrame API](https://developers.google.com/youtube/iframe_api_reference) 与浏览器的屏幕/标签页音频共享能力：用于尝试打开网页播放器和接收用户授权共享的标签页声音。YouTube API 本身不直接给页面原始音频。
-- 果蝇动作逻辑还参考了公开的果蝇步态、落脚、grooming 和感觉—运动研究；更详细的模型假设、数据限制和参考链接写在 [MODEL-NOTES.md](MODEL-NOTES.md)。
+## Verification
 
-## 隐私与部署
-
-本项目不录制或上传声音，不保存访问者的文件名、网址或麦克风数据，也不使用分析统计脚本。声音分析在浏览器本地完成。嵌入播放器会直接连接第三方网站，第三方网站可能按自己的规则处理 IP 地址、播放记录或账号状态。
-
-部署到 GitHub Pages 时，在仓库的 Pages 设置中选择 GitHub Actions，并使用上传 `dist/` 的静态站点流程。分享 Pages 网页地址即可；公开 GitHub 仓库本身会显示仓库所属账号。
-
-## 验证
+Run the test suite with:
 
 ```sh
 node --test tests/*.test.mjs
 ```
 
-提醒：页面中的亮度和动作是基于真实神经结构、公开神经资料和果蝇行为研究制作的音乐可视化模型，不是对某只真实果蝇当下脑成像、音乐喜好或完整物理闭环仿真的测量结果。
+The repository contains tests covering components including:
+
+- neural display;
+- neural connectivity;
+- model behavior;
+- YouTube integration;
+- privacy;
+- behavioral logic;
+- audio input;
+- motor behavior.
+
+## Sources, credits, and what was used
+
+### Janelia Research Campus / FlyEM MaleCNS
+
+[MaleCNS](https://male-cns.janelia.org/) provides publicly available data and resources describing the male fruit-fly central nervous system. This project uses information associated with `male-cns:v1.0`, including:
+
+- neuron Body IDs;
+- SWC morphology;
+- connection weights;
+- ROI and cell-type information;
+- official brain reference images.
+
+These data are used to construct the neural structures visualized in the application.
+
+### neuPrint
+
+[neuPrint](https://neuprint.janelia.org/?dataset=male-cns:v1.0&qt=findneurons) is used to query and inspect neurons, connections, and annotations within MaleCNS. The 40-neuron subnetwork used by this project was organized around auditory input and downstream pathways.
+
+### Google Neuroglancer
+
+[Google Neuroglancer](https://github.com/google/neuroglancer) provides a reference for exploring and viewing 3D neural data. It informed the spatial visualization approach used in this project. Neuroglancer source code is not bundled directly into the application.
+
+### BrainImation
+
+[BrainImation](https://github.com/kylemath/Brainimation) provided visual inspiration for colorful neural animation and glowing neural structures in a dark spatial environment. This project does not copy BrainImation’s neural data or algorithms; the visualization is generated using this project’s own MaleCNS subnetwork and audio-to-neural mapping.
+
+### FlyGym / NeuroMechFly
+
+[NeLy-EPFL / FlyGym / NeuroMechFly](https://github.com/NeLy-EPFL/flygym) provides references for 3D fruit-fly body models and joint structures. The relevant scientific assets are retained with their associated notices and license information in:
+
+```text
+dist/assets/FLYGYM-NOTICE.md
+dist/assets/FLYGYM-LICENSE.txt
+```
+
+The fly body used in the web application is a web-adapted version of this scientific morphology asset.
+
+### three.js
+
+[three.js](https://threejs.org/) and OrbitControls are used for:
+
+- 3D rendering;
+- camera control;
+- rotation;
+- zoom;
+- lighting and visual effects.
+
+Relevant license information is retained in:
+
+```text
+dist/vendor/
+```
+
+### YouTube IFrame API
+
+The [YouTube IFrame API](https://developers.google.com/youtube/iframe_api_reference) is used to attempt embedded web playback. The API does not provide raw YouTube audio directly to the application. Audio-reactive behavior for browser-based playback depends on browser audio-sharing mechanisms and user permissions.
+
+## Privacy
+
+Audio analysis is performed locally in the browser. The project does not intentionally:
+
+- upload microphone audio;
+- upload local audio files;
+- store visitor filenames;
+- store submitted URLs;
+- use analytics tracking scripts.
+
+Embedded third-party media players may connect directly to external services. Those services may process information such as IP addresses, playback information, or account status according to their own privacy policies.
+
+## Deployment
+
+The application is designed as a static web application. For GitHub Pages deployment, configure the repository to use GitHub Actions and deploy the `dist/` directory as the static site.
+
+The repository can be used as the source for the public website while the generated static files are served through GitHub Pages or another static hosting provider.
+
+## Project summary
+
+Fly Aural Lab combines:
+
+1. publicly available fruit-fly neural data;
+2. acoustic feature extraction;
+3. a simplified neural activity model;
+4. a behavioral mapping system;
+5. real-time 3D visualization.
+
+The purpose of the project is to explore how biological neural structure can be translated into an interactive audiovisual experience while maintaining a clear distinction between scientific data and creative modeling.
+
+This repository contains original application code together with data, scientific references, and third-party assets. Please refer to the individual license and attribution files included in the repository before reusing third-party materials. In particular, see:
+
+```text
+dist/assets/FLYGYM-NOTICE.md
+dist/assets/FLYGYM-LICENSE.txt
+dist/vendor/
+```
+
+This project builds upon publicly available work and scientific resources from Janelia Research Campus, FlyEM, neuPrint, Neuroglancer, NeLy-EPFL, FlyGym, NeuroMechFly, three.js, and related research communities. Please consult the linked sources and included attribution files for the original scientific datasets, software, and third-party assets.
+
+The current version focuses on:
+
+- audio-reactive neural visualization;
+- MaleCNS-inspired auditory neural structures;
+- 3D fruit-fly animation;
+- simulated neural activity;
+- browser-based local audio analysis;
+- interactive web audio playback.
+
+Future development may include more detailed neural models, additional sensory pathways, richer behavioral states, and further integration between neural activity and movement.
+
+Fly Aural Lab explores the relationship between sound, neural structure, simulation, and movement.
+
+Final reminder: Fly Aural Lab is an experimental, research-inspired creative coding project; its on-screen activity and movements are model-generated visualizations, not live brain-imaging measurements, individual music-preference predictions, or a full physical closed-loop simulation.
