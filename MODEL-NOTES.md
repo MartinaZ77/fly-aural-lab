@@ -47,6 +47,8 @@ Embedding restrictions (including YouTube 101/150), unavailable videos, login/DR
 
 ## Assets, privacy and tests
 
+For faster startup, the deployment runs `node scripts/pack-connectome.mjs` to encode skeleton coordinates and parent IDs as lossless integer deltas. It verifies the decoded graph against every original value before writing the transport asset. All 40 neurons, 102,963 skeleton points, edges and source metadata remain unchanged; the original JSON is retained as a fallback. Scene resources load in parallel, with bounded data-download retries.
+
 Body provenance and Apache-2.0 terms: `dist/assets/FLYGYM-NOTICE.md` and `FLYGYM-LICENSE.txt`. Vendored Three.js/OrbitControls retain their MIT license. Public MaleCNS queries and dataset limitations remain with the graph.
 
 No personal recordings, sign-in URLs, passwords, API keys or account details are required. Third-party players receive ordinary direct browser requests and are governed by their own privacy policies. Public source exports exclude `.git`, `.openai`, local credentials, screenshots and personal history; they use a neutral initial commit when uploaded to a new public repository.

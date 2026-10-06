@@ -8,7 +8,8 @@ import {parseURL,inputError} from './audio-input.mjs';
 import {neuralGeometry} from './neural-space.mjs';
 import {BranchNavigator} from './branch-space.mjs';
 import {createNeuralFrame} from './neural-display.mjs';
-import {loadJSONAsset} from './load-asset.mjs';
+import {loadJSONAsset} from './load-asset.mjs?v=20261006b';
+import {decodeConnectome} from './connectome-codec.mjs';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const audio=$('#audioPlayer'),frame=$('#youtubeFrame');
 const youtube=new YouTubePlayback(frame,text=>{$('#playerStatus').textContent=text;});
@@ -124,7 +125,8 @@ function render(now){requestAnimationFrame(render);if(!viewer||now-lastDraw<33)r
 // Settle 3D separately so an unavailable GPU cannot block audio or the circuit.
 const stageResources=Promise.all([import('./neural-room.mjs?v=20261006'),loadJSONAsset('./assets/fly-rig.json')]).then(value=>({value}),error=>({error}));
 try{
-  data=await loadJSONAsset('./assets/auditory-connectome.json');
+  try{data=decodeConnectome(await loadJSONAsset('./assets/auditory-connectome.packed.json',{retry:false}));}
+  catch{data=await loadJSONAsset('./assets/auditory-connectome.json');}
   if(!Array.isArray(data.nodes)||!data.nodes.length||data.nodes.some(n=>!Array.isArray(n.skeleton)||!n.skeleton.length||n.skeleton.some(p=>p.length<5||!p.every(Number.isFinite))))throw new Error('神经元骨架格式不正确');
   model=new NeuralSimulation(data);viewer=new SkeletonViewer($('#brainCanvas'),data);viewer.showEdges=false;
   $('#brainStatus').hidden=true;

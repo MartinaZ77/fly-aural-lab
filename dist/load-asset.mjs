@@ -1,5 +1,5 @@
 // The host negotiates gzip; retain the original scientific data without resampling.
-export async function loadJSONAsset(path,{fetcher=fetch,timeout=12000}={}){
+export async function loadJSONAsset(path,{fetcher=fetch,timeout=12000,retry=true}={}){
   async function read(){
     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
     try{
@@ -8,5 +8,5 @@ export async function loadJSONAsset(path,{fetcher=fetch,timeout=12000}={}){
       return await response.json();
     }finally{clearTimeout(timer);}
   }
-  try{return await read();}catch{return read();}
+  try{return await read();}catch(error){if(!retry)throw error;return read();}
 }

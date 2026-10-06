@@ -6,11 +6,11 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23071019'/%3E%3Cellipse cx='32' cy='34' rx='10' ry='17' fill='%23f6a63b'/%3E%3Cellipse cx='20' cy='25' rx='13' ry='7' fill='none' stroke='%237ee7e1' stroke-width='3' transform='rotate(-28 20 25)'/%3E%3Cellipse cx='44' cy='25' rx='13' ry='7' fill='none' stroke='%237ee7e1' stroke-width='3' transform='rotate(28 44 25)'/%3E%3Ccircle cx='28' cy='19' r='4' fill='%23ff654e'/%3E%3Ccircle cx='36' cy='19' r='4' fill='%23ff654e'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="./style.css">
 <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
-<link rel="modulepreload" href="./app.mjs?v=20261006">
+<link rel="modulepreload" href="./app.mjs?v=20261006b">
 <link rel="modulepreload" href="./neural-room.mjs?v=20261006">
 <link rel="modulepreload" href="./vendor/three.module.js">
 <link rel="modulepreload" href="./vendor/three.core.js">
-<link rel="preload" href="./assets/auditory-connectome.json" as="fetch" crossorigin>
+<link rel="preload" href="./assets/auditory-connectome.packed.json" as="fetch" crossorigin>
 <link rel="preload" href="./assets/fly-rig.json" as="fetch" crossorigin>
 </head>
 <body>
@@ -51,6 +51,6 @@
 <div class="source-links"><a href="./assets/auditory-connectome.json" target="_blank" rel="noopener">MaleCNS 数据 ↗</a><a href="./assets/FLYGYM-NOTICE.md" target="_blank" rel="noopener">身体模型与许可 ↗</a><a href="https://github.com/kylemath/Brainimation" target="_blank" rel="noopener">BrainImation ↗</a></div>
 </dialog>
 <div id="fileNotice" hidden><h2>请从网页入口打开</h2><p>直接打开文件会限制三维空间和声音连接。</p><a href="http://127.0.0.1:4173/">本地预览 ↗</a></div>
-<script>document.getElementById('retryLoad').onclick=()=>location.reload();if(location.protocol==='file:'){document.getElementById('fileNotice').hidden=false;}else{setTimeout(()=>{const state=document.getElementById('flyStatus');if(!state.hidden){state.textContent='加载较慢，可重新载入。';document.getElementById('retryLoad').hidden=false;}},15000);import('./app.mjs?v=20261006').catch(error=>{console.error('Startup failed:',error);document.getElementById('sourceStatus').textContent='连接中断，请重新载入。';document.getElementById('retryLoad').hidden=false;for(const id of ['brainStatus','flyStatus'])document.getElementById(id).hidden=true;});}</script>
+<script>document.getElementById('retryLoad').onclick=()=>location.reload();if(location.protocol==='file:'){document.getElementById('fileNotice').hidden=false;}else{setTimeout(()=>{const state=document.getElementById('flyStatus');if(!state.hidden){state.textContent='加载较慢，可重新载入。';document.getElementById('retryLoad').hidden=false;}},15000);import('./app.mjs?v=20261006b').catch(error=>{console.error('Startup failed:',error);document.getElementById('sourceStatus').textContent='连接中断，请重新载入。';document.getElementById('retryLoad').hidden=false;for(const id of ['brainStatus','flyStatus'])document.getElementById(id).hidden=true;});}</script>
 </body>
 </html>
