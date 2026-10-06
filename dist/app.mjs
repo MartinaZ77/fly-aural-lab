@@ -8,6 +8,7 @@ import {parseURL,inputError} from './audio-input.mjs';
 import {neuralGeometry} from './neural-space.mjs';
 import {BranchNavigator} from './branch-space.mjs';
 import {createNeuralFrame} from './neural-display.mjs';
+import {loadJSONAsset} from './load-asset.mjs';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const audio=$('#audioPlayer'),frame=$('#youtubeFrame');
 const youtube=new YouTubePlayback(frame,text=>{$('#playerStatus').textContent=text;});
@@ -119,16 +120,23 @@ function render(now){requestAnimationFrame(render);if(!viewer||now-lastDraw<33)r
   if(motor){const v=motor.values;flyStage?.draw(v,neuralFrame,motorOptions);$('#motionLabel').textContent=BEHAVIOR_NAMES[v.action]||'自动';}
   $('#liveStatus').textContent=!processor?'等待声音':context.state!=='running'||now-lastMessage>1500?'音频已暂停':now-lastSignal>300?'输入静音':sourceKind==='microphone'?'正在听你唱':'声音已连接';
 }
+// Start independent downloads together, before parsing or route construction.
+// Settle 3D separately so an unavailable GPU cannot block audio or the circuit.
+const stageResources=Promise.all([import('./neural-room.mjs?v=20261006'),loadJSONAsset('./assets/fly-rig.json')]).then(value=>({value}),error=>({error}));
 try{
-  const response=await fetch('./assets/auditory-connectome.json');if(!response.ok)throw new Error('数据文件载入失败');data=await response.json();
+  data=await loadJSONAsset('./assets/auditory-connectome.json');
   if(!Array.isArray(data.nodes)||!data.nodes.length||data.nodes.some(n=>!Array.isArray(n.skeleton)||!n.skeleton.length||n.skeleton.some(p=>p.length<5||!p.every(Number.isFinite))))throw new Error('神经元骨架格式不正确');
   model=new NeuralSimulation(data);viewer=new SkeletonViewer($('#brainCanvas'),data);viewer.showEdges=false;
+  $('#brainStatus').hidden=true;
+  requestAnimationFrame(render);
+  // Let the first circuit frame paint before the geometric navigation pass.
+  await new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)));
   const forest=neuralGeometry(data.nodes),seed=crypto.getRandomValues(new Uint32Array(1))[0],navigation=new BranchNavigator(forest,ROOM_LIMITS,seed);
   motor=new BehaviorController(data.nodes,navigation);
-  Promise.all([import('./neural-room.mjs'),fetch('./assets/fly-rig.json').then(r=>{if(!r.ok)throw new Error('模型文件载入失败');return r.json();})]).then(([module,rig])=>{flyStage=new module.FlyStage($('#flyCanvas'),$('#flyBackground'),rig,data,forest);$('#flyStatus').textContent='';$('#flyStatus').hidden=true;}).catch(e=>{$('#flyError').hidden=false;$('#flyError').textContent='3D 空间暂不可用：'+e.message+'。请换支持 WebGL 2 的浏览器。';$('#flyStatus').hidden=true;});
-  requestAnimationFrame(render);
-}catch(e){$('#dataError').hidden=false;$('#dataError').textContent=`${e.message}。请刷新页面重试；未使用虚构数据替代。`;status('真实数据未载入，模拟尚未开始。',true);}
-if(navigator.modelContext?.registerTool){
+  stageResources.then(({value,error})=>{if(error)throw error;const [module,rig]=value;flyStage=new module.FlyStage($('#flyCanvas'),$('#flyBackground'),rig,data,forest);$('#flyStatus').textContent='';$('#flyStatus').hidden=true;$('#retryLoad').hidden=true;performance.mark('fly-ready');}).catch(e=>{$('#flyError').hidden=false;$('#flyError').textContent='3D 空间载入失败：'+e.message+'。请点击重新载入。';$('#flyStatus').hidden=true;$('#retryLoad').hidden=false;});
+}catch(e){$('#brainStatus').hidden=true;$('#flyStatus').hidden=true;$('#dataError').hidden=false;$('#dataError').textContent=`${e.message}。请点击重新载入。`;status('神经空间尚未就绪。',true);$('#retryLoad').hidden=false;}
+// Optional browser tooling must never mark a working visualization as failed.
+try{if(navigator.modelContext?.registerTool){
   navigator.modelContext.registerTool({name:'read_fly_neural_visualization',description:'Read current real connectome subset, audio features, simulated neuron activities and illustrative motor output; not measured physiology, validated behavior or musical preference.',inputSchema:{type:'object',properties:{},additionalProperties:false},execute:async()=>({content:[{type:'text',text:JSON.stringify({dataset:'male-cns:v1.0',sourceKind,features,modelTime:model?.time,motor:{options:motorOptions,state:motor?.values,interpretation:'Artistic kinematic readout, not validated behavior or physics'},neurons:data?.nodes.map((n,i)=>({bodyId:n.id,type:n.type,simulatedActivity:model.activity[i]}))})}]})});
   navigator.modelContext.registerTool({name:'load_fly_audio_url',description:'Load a user-provided audio or YouTube URL in the page. Capturing tab audio still requires the user to click and grant permission.',inputSchema:{type:'object',properties:{url:{type:'string'}},required:['url'],additionalProperties:false},execute:async({url})=>{await loadURL(url);return {content:[{type:'text',text:$('#sourceStatus').textContent}]};}});
-}
+}}catch(e){console.warn('Optional browser tools unavailable:',e.message);}

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {OrbitControls} from './vendor/OrbitControls.js';
 import {poseForBehavior} from './behavior.mjs';
-import {FootContactSolver} from './leg-ik.mjs';
+import {FootContactSolver} from './leg-ik.mjs?v=20261006';
 import {colorOf} from './neural-display.mjs';
 
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
@@ -79,15 +79,8 @@ export class FlyStage {
       body.joints.forEach((joint,i)=>{part.offsets[i]=clamp(this.offset(body,joint,pose),-1.5,1.5);this.axis.fromArray(joint.axis);this.q.setFromAxisAngle(this.axis,joint.rest+part.offsets[i]);group.quaternion.multiply(this.q);});
       mesh.material.emissiveIntensity=.015+state.drive*.08;
     }
-    let targets=state.footTargets;
-    if(!state.grounded){
-      this.root.updateMatrixWorld(true);const extension=state.landingProgress||0;
-      targets=Object.fromEntries(['LF','LM','LH','RF','RM','RH'].map(leg=>{
-        const x={F:.25,M:-.2,H:-.65}[leg[1]],tip=this.root.localToWorld(new THREE.Vector3(x,leg[0]==='L'?.24:-.24,-.32));
-        if(state.landingFootTargets?.[leg])tip.lerp(new THREE.Vector3().fromArray(state.landingFootTargets[leg]),extension*extension*(3-2*extension));return [leg,tip.toArray()];
-      }));
-    }
-    this.contactSolver.solve(targets);
+    if(state.grounded)this.contactSolver.solve(state.footTargets);
+    else this.contactSolver.fly(state.landingFootTargets,state.landingProgress);
     this.neuralRoom.visible=options.backdrop;
     for(const part of this.neuralParts){const style=frame.byId[part.id];part.material.opacity=style.opacity;part.pm.opacity=style.glowOpacity;}
     this.controls.update();this.renderer.render(this.scene,this.camera);

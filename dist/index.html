@@ -5,6 +5,13 @@
 <meta name="description" content="音乐与歌声驱动的果蝇神经空间。MaleCNS 真实结构，模拟神经活动。"><title>果蝇音乐空间 · Fly Aural Lab</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23071019'/%3E%3Cellipse cx='32' cy='34' rx='10' ry='17' fill='%23f6a63b'/%3E%3Cellipse cx='20' cy='25' rx='13' ry='7' fill='none' stroke='%237ee7e1' stroke-width='3' transform='rotate(-28 20 25)'/%3E%3Cellipse cx='44' cy='25' rx='13' ry='7' fill='none' stroke='%237ee7e1' stroke-width='3' transform='rotate(28 44 25)'/%3E%3Ccircle cx='28' cy='19' r='4' fill='%23ff654e'/%3E%3Ccircle cx='36' cy='19' r='4' fill='%23ff654e'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="./style.css">
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+<link rel="modulepreload" href="./app.mjs?v=20261006">
+<link rel="modulepreload" href="./neural-room.mjs?v=20261006">
+<link rel="modulepreload" href="./vendor/three.module.js">
+<link rel="modulepreload" href="./vendor/three.core.js">
+<link rel="preload" href="./assets/auditory-connectome.json" as="fetch" crossorigin>
+<link rel="preload" href="./assets/fly-rig.json" as="fetch" crossorigin>
 </head>
 <body>
 <a class="skip-link" href="#sourceHeading">连接声音</a>
@@ -14,7 +21,7 @@
 <div class="workspace">
 <section class="panel anatomy-panel" aria-labelledby="brainHeading">
 <div class="panel-head"><h2 id="brainHeading">真实 3D 听觉回路</h2><button class="quiet-button fullscreen-button" data-fullscreen=".anatomy-panel" aria-label="全屏查看听觉回路">全屏 ↗</button></div>
-<div class="brain-stage"><canvas id="brainCanvas" tabindex="0" aria-label="真实神经元骨架，全回路随声音模拟活动。拖动旋转，滚轮缩放；方向键旋转，加减键缩放，0 复位。"></canvas><div id="dataError" class="error-overlay" role="alert" hidden></div></div>
+<div class="brain-stage"><canvas id="brainCanvas" tabindex="0" aria-label="真实神经元骨架，全回路随声音模拟活动。拖动旋转，滚轮缩放；方向键旋转，加减键缩放，0 复位。"></canvas><span id="brainStatus" class="loading-note" role="status">正在载入神经回路…</span><div id="dataError" class="error-overlay" role="alert" hidden></div></div>
 <div class="panel-footer"><span>全回路 · 随声音变化</span><span>模拟活动</span></div>
 </section>
 <section class="panel fly-panel" aria-labelledby="flyHeading">
@@ -30,7 +37,7 @@
 <form id="urlForm"><label for="urlInput">网页地址</label><input id="urlInput" type="text" inputmode="url" placeholder="粘贴音乐或视频链接" required><button type="submit">打开</button></form>
 <div class="sound-actions"><button id="captureButton">网页声音</button><button id="micButton" aria-pressed="false">麦克风</button><button id="stopButton" disabled>停止</button></div>
 </div>
-<div class="source-feedback"><p id="sourceStatus" role="status">拖入音乐、粘贴网址，或打开麦克风。</p><span id="micIndicator" hidden>麦克风已开启</span><meter id="inputMeter" min="0" max="1" value="0" aria-label="实时声音输入"></meter></div>
+<div class="source-feedback"><p id="sourceStatus" role="status">拖入音乐、粘贴网址，或打开麦克风。</p><button id="retryLoad" hidden>重新载入</button><span id="micIndicator" hidden>麦克风已开启</span><meter id="inputMeter" min="0" max="1" value="0" aria-label="实时声音输入"></meter></div>
 <div class="player-box" id="playerBox" hidden><span id="currentTitle"></span><audio id="audioPlayer" controls hidden></audio><a id="externalLink" target="_blank" rel="noopener noreferrer" hidden>打开原网页 ↗</a><output id="playerStatus" role="status"></output><details id="embedBox" hidden><summary>页内播放</summary><iframe id="youtubeFrame" title="网页音乐播放器" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen hidden></iframe></details></div>
 </section>
 </main>
@@ -44,7 +51,6 @@
 <div class="source-links"><a href="./assets/auditory-connectome.json" target="_blank" rel="noopener">MaleCNS 数据 ↗</a><a href="./assets/FLYGYM-NOTICE.md" target="_blank" rel="noopener">身体模型与许可 ↗</a><a href="https://github.com/kylemath/Brainimation" target="_blank" rel="noopener">BrainImation ↗</a></div>
 </dialog>
 <div id="fileNotice" hidden><h2>请从网页入口打开</h2><p>直接打开文件会限制三维空间和声音连接。</p><a href="http://127.0.0.1:4173/">本地预览 ↗</a></div>
-<script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
-<script>if(location.protocol==='file:'){document.getElementById('fileNotice').hidden=false;}else{import('./app.mjs').catch(()=>{document.getElementById('sourceStatus').textContent='页面未完全载入，请刷新重试。';});}</script>
+<script>document.getElementById('retryLoad').onclick=()=>location.reload();if(location.protocol==='file:'){document.getElementById('fileNotice').hidden=false;}else{setTimeout(()=>{const state=document.getElementById('flyStatus');if(!state.hidden){state.textContent='加载较慢，可重新载入。';document.getElementById('retryLoad').hidden=false;}},15000);import('./app.mjs?v=20261006').catch(error=>{console.error('Startup failed:',error);document.getElementById('sourceStatus').textContent='连接中断，请重新载入。';document.getElementById('retryLoad').hidden=false;for(const id of ['brainStatus','flyStatus'])document.getElementById(id).hidden=true;});}</script>
 </body>
 </html>
